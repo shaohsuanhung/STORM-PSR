@@ -42,9 +42,14 @@ sh scripts/test.sh
 ## To evaluate a model
 ```bash
 cd STORM-PSR/PSR_evaluation
-sh evaluate_STORM.sh  # To evaluate the STORM-PSR model
-sh evaluate_ODStream.sh # To evaluate the Object Detection Stream
-sh evaluate_TemporalStream.sh  # To evaluate the Temporal Stream model
+# To evaluate the STORM-PSR model
+sh evaluate_STORM.sh
+
+ # To evaluate the Object Detection Stream
+sh evaluate_ODStream.sh
+
+# To evaluate the Temporal Stream model
+sh evaluate_TemporalStream.sh  
 ```
 
 ### To visualize spatial embedding using UMAP / t-SNE
