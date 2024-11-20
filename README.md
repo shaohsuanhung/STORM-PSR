@@ -20,7 +20,8 @@ pip install -r STORM-PSR/requirements.txt
 3. Dataset preparation
    * IndustReal:  Please refer to  [IndustReal github page](https://github.com/TimSchoonbeek/IndustReal) to download the datasets.
    * MECCANO: Please refer to [MECCANO github page](https://github.com/fpv-iplab/MECCANO) to download the datasets.
-     <font color="red"> !!! You should ADD link to download the MECCANO ASD & PSR annotation !!!</font>
+     <font color="red">
+     !!! We should ADD link to download the MECCANO ASD & PSR annotation !!!</font>
 
 
 ## Object detection stream model
