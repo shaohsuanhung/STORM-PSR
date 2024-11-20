@@ -1,0 +1,7 @@
+# Spatial 
+spatial_args:
+  hidden: 128 # should be 384
+  channels: 3
+  second_head_input: 128
+  model: 'vit_small_patch16_224.augreg_in21k_ft_in1k'
+
