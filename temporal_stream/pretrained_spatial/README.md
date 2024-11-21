@@ -3,14 +3,14 @@
 
 ```
 $ git clone [To be add, url of this repo in the public github]
-$ cd KeyStep/temporal_stream/pretrained_spatial
-$ conda create -n KeyStep python=3.9 -y
-$ conda activate KeyStep
-$ pip install -r KeyStep/temporal_stream/requirements.txt
+$ cd STORM-PSR/temporal_stream/pretrained_spatial
+$ conda create -n storm-psr python=3.9 -y
+$ conda activate storm-psr
+$ pip install -r storm-psr/temporal_stream/requirements.txt
 ```
 
 ## Usage
-The scripts in this subfolder are mostly adpot from our previous work. ([paper](https://arxiv.org/abs/2408.11700), [repo](https://github.com/TimSchoonbeek/AssemblyStateRecognition)). The only different is that we train the spatial encoder in weakly-superivised contrastive learning setting. The weakly-supervised sampling method (also called Key-frame sampling) is implemented in the script `temporal_aware_datasets.py` at [here](./temporal_aware_CL/temporal_aware_datasets.py). 
+The scripts in this subfolder are mostly adpot from related work. ([paper](https://arxiv.org/abs/2408.11700), [repo](https://github.com/TimSchoonbeek/AssemblyStateRecognition)). The only different is that we train the spatial encoder in weakly-superivised contrastive learning setting. The weakly-supervised sampling method (also called Key-frame sampling) is implemented in the script `temporal_aware_datasets.py` at [here](./temporal_aware_CL/temporal_aware_datasets.py). 
 
 
 ### Pre-train the spatial encoder
@@ -70,7 +70,7 @@ python compute_embedding_from_dataset.py [--data_path DATA_PATH]\
 ```
 
 ### Job script
-To automated the training pipeline, we provided the shell script to automated the training and testing process. Please refer to [KeyStep/temporal_stream/pretrained_spatial/job_script](./job_script/interactive/). Indicating the path of the config file used to train the model by calling:
+To automated the training pipeline, we provided the shell script to automated the training and testing process. Please refer to [STORM-PSR/temporal_stream/pretrained_spatial/job_script](./job_script/interactive/). Indicating the path of the config file used to train the model by calling:
 ```
 sh job_script/interactive/pretrained_spatial_industreal.sh
 ```

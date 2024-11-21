@@ -11,7 +11,7 @@ from sklearn.metrics import classification_report,  f1_score
 from torchsummary import summary
 import json
 from video_dataset_action_label import ImglistToTensor,  VideoFrameDataset_PSR
-from model import VTN, VTN_tmp_only, No_temporal_encoder, temp_enc_LSTM, SimStepNet, SimStepNet_MLP
+from model import VTN, VTN_tmp_only, No_temporal_encoder, temp_enc_LSTM, STORM, STORM_MLP
 from utils import load_yaml,  get_metrics, plot_trainlog_result
 from torch.optim.lr_scheduler import LinearLR, SequentialLR
 from torch.optim import AdamW, SGD, Adagrad
@@ -40,19 +40,17 @@ STEPS = [1, 14, 25]
 
 if platform.system() == "Windows":
     base_dir = Path(
-        r"\\asml.com\eu\shared\nl011006\res_ds_ml_restricted\shaohung\train_log")
+        r"\your_path")
     data_dir = Path(
-        r"\\asml.com\eu\shared\nl011006\res_ds_ml_restricted\TimSchoonbeek\meccano")
+        r"\your_data_path")
     ckpt_dir = data_dir
     psr_path = Path(
-        r'\\asml.com\eu\shared\nl011006\res_ds_ml_restricted\shaohung\MECCANO-PSR')
+        r"\your_label_path")
 else:
-    base_dir = Path("/shared/nl011006/res_ds_ml_restricted/shaohung/train_log")
-    data_dir = Path(
-        "/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/meccano")
-    ckpt_dir = Path("/hpc/scratch/shaohung/checkpoints")
-    psr_path = Path(
-        '/shared/nl011006/res_ds_ml_restricted/shaohung/MECCANO-PSR')
+    base_dir = Path("your/run_path")
+    data_dir = Path("your/data_path")
+    ckpt_dir = Path("your/checkpoint_path")
+    psr_path = Path("your/label_path")
     
 IndustReal_ACTION_LABEL = ['Base','Front chassis','Front chassis pin', 'Rear chassis', \
                 'Short rear chassis', 'Front rear chassis pin', 'Rear rear chassis pin',\
@@ -82,7 +80,7 @@ def set_options():
                         help="Name of the run to be tested or evaluated")
     parser.add_argument("--resume", type=int, default=0,
                         help='Resume training from')
-    parser.add_argument("--config", type=str, default='configs/IndustReal/SimStepNet_F65_dim128_ImgNet.yaml',
+    parser.add_argument("--config", type=str, default='configs/IndustReal/STORM_F65_dim128_ImgNet.yaml',
                         help="Config file")
     parser.add_argument("--dtype", type=str, default='video',
                         help='Specific the data type of the dataset (only have embeddings and video)')
@@ -128,7 +126,6 @@ def set_options():
                         help="skip factor, in order to have larger temporal receptive field.")
 
     return parser.parse_args()
-
 
 def save_dict(log_path: Path, txt_name, dict_name):
     with open(log_path / txt_name, 'w') as file:
@@ -229,7 +226,6 @@ def setup_path(args):
 
     return run_path, modelsave_path, log_path, tb_dir, save_ckpt_dir, performance_report_dir
 
-
 def batch_log_print(d, i, t, split):
     c = datetime.datetime.now().strftime('%H:%M:%S')
     str = f"{c} - {split} Iteration:{i} \t"
@@ -237,39 +233,6 @@ def batch_log_print(d, i, t, split):
         str += f" \t {key}: {d[key]:.5f}"
     str += f" \t {time.time() - t:.3f} seconds/iteration"
     print(str)
-
-
-def adjust_learning_rate(args, optimizer, epoch, cur_iter, max_iter):
-    """Sets the learning rate to the according to POLICY"""
-    for ind, step in enumerate(STEPS):
-        if epoch < step:
-            break
-        ind = ind - 1
-
-        lr = args.lr * LRS[ind]
-
-    # First 1 epochs warmup
-    if epoch <= 1:
-        # Linear warmup from warmup learning rate to learning rate
-        cur_iter = (epoch-1) * max_iter + cur_iter
-        lr = args.warmup_rate + cur_iter / \
-            (max_iter * 1) * (args.lr - args.warmup_rate)
-
-    else:
-        # Cosine learning rate
-        cur_iter = (epoch - 2) * max_iter + cur_iter
-        full_iter = (args.epochs - 1) * max_iter
-
-        # Minimum learning rate
-        min_learning_rate = 1e-6
-        lr = min_learning_rate + (args.lr - min_learning_rate) * \
-            (np.cos(np.pi * cur_iter / full_iter) + 1.0) * 0.5
-
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
-
-    return lr
-
 
 def classification_result(loader, model):
     y_pred = []  # save predction
@@ -312,75 +275,6 @@ def classification_result(loader, model):
         zero_division=np.nan,
     ))
     return report
-
-
-def print_confusion_matrix(confusion_matrix, axes, class_label, class_names, fontsize=14):
-
-    df_cm = pd.DataFrame(
-        confusion_matrix, index=class_names, columns=class_names,
-    )
-
-    try:
-        heatmap = sn.heatmap(df_cm, annot=True, fmt="d", cbar=False, ax=axes)
-    except ValueError:
-        raise ValueError("Confusion matrix values must be integers.")
-    heatmap.yaxis.set_ticklabels(
-        heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=fontsize)
-    heatmap.xaxis.set_ticklabels(
-        heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
-    axes.set_ylabel('True label')
-    axes.set_xlabel('Predicted label')
-    axes.set_title("Confusion Matrix for the class - " + class_label)
-
-def fine_tuning_sanity_check(model,dataloader):
-    """Do the sanity check whether the model is loaded correctly before the fine-tuning."""
-    print("Sanity check for whether loading correct embeddings...")
-    model.eval()
-    model.to(DEVICE)
-    model.float()
-    val_loss = 0
-    val_acc = 0
-    avg_val_loss = []
-    avg_val_acc = []
-    y_pred = []
-    y_true = []
-    progress = tqdm(enumerate(dataloader), total=len(
-        dataloader), desc=f"Validating(on trainset)")
-
-    for i, (src, target) in progress:
-        if torch.cuda.is_available():
-            src = torch.autograd.Variable(src).cuda()
-            target = torch.autograd.Variable(target).cuda()
-        with torch.no_grad():
-            output = model(src)
-            output = torch.sigmoid(output)
-            loss = loss_func(output, target)
-            output_pred = output.round().data.cpu().numpy()
-            val_loss = loss.item()
-            avg_val_loss.append(val_loss)
-            y_pred.extend(output_pred)  # save prediction
-            y_true.extend(target.data.cpu().numpy())  # save ground truth
-            val_acc = f1_score(target.data.cpu().numpy(),
-                               output_pred, labels=state_list, average=None, zero_division=0.0)
-            avg_val_acc.append(
-                np.mean([score for score in val_acc if math.isnan(score) != True]))
-            val_acc = np.mean(
-                [score for score in val_acc if math.isnan(score) != True])
-
-        progress.set_description(
-            f"Epoch: {0}, val loss: {val_loss:.6f}, macro F1 score:{val_acc:.6f}, # step completion moment :{np.count_nonzero([np.count_nonzero(ele) for ele in target.data.cpu().numpy() ])}.")
-
-    print(classification_report(y_true, y_pred,target_names=ACTION_LABEL,
-          output_dict=False, zero_division=np.nan))
-    
-    report = classification_report(
-            y_true,
-            y_pred,
-            output_dict=True, target_names=ACTION_LABEL,
-            zero_division=np.nan)
-    file = 'result_on_finetuning.json'
-    with open(result_dir / file, 'w') as outfile:
-            json.dump(report, outfile)
 
 if __name__ == "__main__":
     # --  Before Training     
@@ -435,9 +329,9 @@ if __name__ == "__main__":
         ])
         # model
         if args.baseline:
-            model = SimStepNet_MLP(**vars(cfg),args = args)
+            model = STORM_MLP(**vars(cfg),args = args)
         else:
-            model = SimStepNet(**vars(cfg),args=args)
+            model = STORM(**vars(cfg),args=args)
 
     else:
         raise NotImplementedError(
@@ -602,19 +496,12 @@ if __name__ == "__main__":
     softmax = nn.LogSoftmax(dim=1)
     best_val_acc = 0.0
     
-    # --- Sanity check before the training
-    if args.sanity_check:
-        fine_tuning_sanity_check(model,train_loader_sanity_check)
-        save_model_state_dict(args,model,optimizer,scheduler,0, modelsave_path, BEST = False)
-
     #-----------------------------------  Training   
     for epoch in range(max(args.resume+1, 1), args.epochs+1):
         # --- Train
         model.train()
         model.to(DEVICE)
         model.float()
-        # Adjust learning rate
-        # scheduler = CosineAnnealingLR(optimizer, 100, 1e-4, -1)
         progress = tqdm(enumerate(train_loader), total=len(
             train_loader), desc=f"Epoch: {epoch}, loss: 0.000")
         train_loss_list = []
@@ -627,8 +514,6 @@ if __name__ == "__main__":
             lr_spatial_enc = scheduler.get_last_lr()[0]
             lr_temporal_enc = scheduler.get_last_lr()[1]
         for i, (src, target) in progress:
-            # lr = adjust_learning_rate(
-            #     args, optimizer, epoch, i, len(train_loader))
             if torch.cuda.is_available():
                 src = torch.autograd.Variable(src).cuda()
                 target = torch.autograd.Variable(target).cuda()
@@ -655,14 +540,14 @@ if __name__ == "__main__":
             train_loss_list.append(train_loss)
             train_acc_list.append(result_train_acc)
 
-            # Summary per iter
+            # Summary per iter on TB
             # tensorboard.add_scalar(
             #     'train_loss', train_loss, epoch * len(train_loader) + i)
             # tensorboard.add_scalar(
             #     'train_f1', result_train_acc * 100, epoch * len(train_loader) + i)
             # tensorboard.add_scalar('lr', lr, epoch * len(train_loader) + i)
 
-        # # Summary per epoch
+        # # Summary per epoch on TB
         # avg_train_loss = sum(avg_train_loss_list)/ len(avg_train_loss_list)
         # avg_train_acc = sum(avg_train_acc_list) / len(avg_train_acc_list)
         # tensorboard.add_scalar('train_loss',avg_train_loss, epoch * len(train_loader) + i)
@@ -719,6 +604,7 @@ if __name__ == "__main__":
         log_str = f"{c} - Epoch: {epoch}\tTrain loss: {np.mean(train_loss_list):.6f}\tTrain acc (%): {np.mean(train_acc_list)*100:.4f}\t" \
             f"Val loss: {np.mean(val_loss_list):.6f}\tVal acc (%): {np.mean(val_acc_list)*100:.4f}\t" \
             f"LR (spatial): {lr_spatial_enc:.6f}\t LR (temporal):{lr_temporal_enc:.6f}\n"
+        
         #--- Summary per epoch
         # tensorboard.add_scalar('val_loss', sum(avg_val_loss) / len(avg_val_loss), epoch)
         # tensorboard.add_scalar('val_acc', sum(avg_val_acc) / len(avg_val_acc) * 100, epoch)

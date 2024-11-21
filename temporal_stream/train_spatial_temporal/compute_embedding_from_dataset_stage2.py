@@ -33,14 +33,14 @@ def get_image_multi(idx, image_path, size=(224, 224)):
 
     img = img.resize(size)
 
-    return idx, torchvision.transforms.functional.pil_to_tensor(img).float() / 255
+    return idx, torchvision.transforms.functional.pil_to_tensor(img).float() / 255.0
 
 
 def set_options():
     parser = argparse.ArgumentParser()
     parser.add_argument("--run_name", type=str, help='Path to the run directory, e.g. ./runs/run_name')
     parser.add_argument("--checkpoint", type=str, default=None, help='Name of the checkpoint to be tested')
-    parser.add_argument("--config",type=str,default='configs/SimStepNet_F65-dim128.yaml',help='configuration of the mdoel')
+    parser.add_argument("--config",type=str,default='configs/STORM_F65-dim128.yaml',help='configuration of the mdoel')
     parser.add_argument("--loss",type=str,default='SupCon',help='type of loss used to train model. Either "ce" or "SupCon"')
     parser.add_argument("--data_path",type=str,default=None,help='location of the dataset')
     parser.add_argument("--psr_label_path",type=str,default=None,help='location of the psr labels')
@@ -53,15 +53,7 @@ def set_options():
 
 if __name__ == "__main__":
     #-- Directory setting
-    # IndustRealDataset = Path('/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/IndustReal/recordings')
-    # MECCANO_Dataset = Path('/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/meccano/')
-    # MECCANO_Dataset_RGB = MECCANO_Dataset / 'frames'
-    # log_dir = Path('/shared/nl011006/res_ds_ml_restricted/shaohung/train_log/runs_MECCANO/stage2_log')
     args = set_options()
-    ######################################
-    # args.run_name = '0805_final_run_finetuned'
-    # args.checkpoint = 'best_model.pth'
-    ######################################
     run_name = args.run_name
     ckpt_name = args.checkpoint
     save_dir = Path(args.log_path) / run_name / 'embeddings'/ckpt_name
@@ -82,6 +74,7 @@ if __name__ == "__main__":
     
 
     spatial_enc.load_weights_encoder_from_ckpt(weights_dir)
+    
     # spatial_enc.load_weights_encoder(weights_dir)
     spatial_enc.use_projection_head(False)  # Use spatial feature extractor only 
     spatial_enc.eval()

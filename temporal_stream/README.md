@@ -2,11 +2,11 @@
 ## Installation 
 
 ```
-$ git clone [To be add, url of this repo in the public github]
-$ cd KeyStep/temporal_stream
-$ conda create -n KeyStep python=3.9 -y
-$ conda activate KeyStep
-$ pip install -r KeyStep/temporal_stream/requirements.txt
+$ git clone [Redacted, url of this repo in the public github]
+$ cd STORM-PSR/temporal_stream
+$ conda create -n storm-psr python=3.9 -y
+$ conda activate storm-psr
+$ pip install -r storm-psr/temporal_stream/requirements.txt
 ```
 
 ## Usage
@@ -18,7 +18,7 @@ The general training procedures of the temporal stream model is:
 
 
 ### Job script
-To automated the training pipeline, we provided the shell script to automated the training and testing process. Please refer to [KeyStep/temporal_stream/job_script](./job_script/). Indicating the path of the config file used to train the model by calling:
+To automated the training pipeline, we provided the shell script to automated the training and testing process. Please refer to [STORM-PSR/temporal_stream/job_script](./job_script/). Indicating the path of the config file used to train the model by calling:
 ```
-sh job_script/interactive/whole_pipeline_industreal.sh
+sh job_script/interactive/train_test_eval_ft_pipeline.sh
 ```

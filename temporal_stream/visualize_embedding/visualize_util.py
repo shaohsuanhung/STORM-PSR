@@ -6,8 +6,6 @@ Implement features:
     3. Visualize 2D/3D scatter plot. 
     4. Convert frame-by-frame embedding trajectory in feature space to video.
 
-author: Shao-Hsuan Hung
-email: shaohsuan.hung1997@gmail.com
 '''
 import pandas as pd
 import os
@@ -200,29 +198,7 @@ def load_embedding_from_structural_folder(data_path: str, label_path: str, stati
     name_list = []
     embeddings = []
 
-    # Sort the label and data to make sure they are in the same in alphabetical order by filename
-    # with os.scandir(label_path) as it:
-    #     label_path_list = list(it)
-    # label_path_list.sort(key=lambda x:x.name)
 
-    # with os.scandir(data_path) as it:
-    #      data_path_list = list(it)
-    # data_path_list.sort(key=lambda x:x.name)
-
-    # # Use the file name to phrase the label. E.g.,:01_assy_1_1_000003_01.jpg
-    # for file in label_path_list:
-    #     state = file.name[:-4].split('_')[-1]
-    #     frameID = int(file.name[:-4].split('_')[-2])
-    #     state_list.append(str(int(state)))
-    #     frame_list.append(int(frameID))
-
-    # for entry in data_path_list:
-    #     for file in glob.glob(entry.path + '/*.csv'):
-    #             embedding_data = dt.fread(file).to_pandas()
-    #             # Extract features
-    #             for idx, row in embedding_data.iterrows():
-    #                 embeddings.append(row.values)
-    #                 name_list.append(entry.name)
     if label_path is not None:
         with os.scandir(label_path) as it:
             label_path_list = list(it)
@@ -355,12 +331,8 @@ def load_embedding_from_structural_folder_PSR(data_path: str, psr_label_path: st
     psr_label_path_list.sort(key=lambda x: x.name)
     for file in psr_label_path_list:
         _PSR_labels = dict()
-        # state = file.name[:-4].split('_')[-1]
-        # frameID = int(file.name[:-4].split('_')[-2])
-        # state_list.append(str(int(state)))
-        # frame_list.append(int(frameID))
         psr_file = dt.fread(glob.glob(os.path.join(file,'PSR_labels_raw.csv'))).to_pandas()
-        # sub_action_list = np.zeros((lenght_list[file.name],len(psr_file.iloc[0][1:])))
+
         sub_action_list = [[str(0) for _ in range(len(psr_file.iloc[0][1:]))] for _ in range(lenght_list[file.name])]
         for idx in range(len(psr_file)):
             row = psr_file.iloc[idx]
@@ -386,9 +358,6 @@ def load_embedding_from_structural_folder_PSR(data_path: str, psr_label_path: st
                                     for (prev, cur) in zip(prev_state, state)]})  # [1,0,0] , [1,0,1]
             prev_state = state
 
-        # print(diff_labels)
-        # print(file.name)
-        # print(sub_action_list.shape)
         for frame, action in diff_labels.items():
             # KFA assume the follow 10 frames are also labeled as same action state. 
             if action in category:
@@ -782,8 +751,6 @@ def plot_2D_with_images(df : pd.DataFrame, img_path: str, title: str = 'demo',sa
 
     fig = plt.figure(figsize=(8, 5), dpi=300)
     ax = fig.add_subplot(1, 1, 1)
-    # ax.set_xlabel('Feature 1', fontsize=2)
-    # ax.set_ylabel('Feature 2', fontsize=2)
     ax.set_title('{}'.format(title), fontsize=  10)
 
     targets = [str(idx) for idx in range(0, 24)]
@@ -878,25 +845,10 @@ def plot_2D_4_publication(df: pd.DataFrame, title: bool = '', save: bool = False
     fig = plt.figure(figsize=(8, 6), dpi=300)
     
     ax = fig.add_subplot(1, 1, 1)
-    # ax.set_xlabel('UMAP feature 1', fontsize=10)
-    # ax.set_ylabel('UMAP feature 2', fontsize=10)
-    # ax.set_title('{}'.format(title), fontsize=20)
-    # targets = [str(idx) for idx in range(0, 24)] # Change this if you want to visualize state 0
+
     targets = natsorted(np.unique(df['state']).astype(str).tolist())
     
     targets.reverse()
-    # for target, color, marker in zip(targets, colors, markers):
-    #     indicesToKeep = df['state'] == target
-    #     if target == '0':
-    #         sz = 10
-    #         alpha_set = 0.2
-    #     else:
-    #         sz = 20
-    #         alpha_set = 1
-    #     ax.scatter(df.loc[indicesToKeep, 'PC1']
-    #                , df.loc[indicesToKeep, 'PC2']
-    #                , c = color
-    #                , s=sz, marker=marker, alpha=alpha_set, linewidth=0.5)
     for state in targets:
         indicesToKeep = df['state'] == state
         color = colorlist[int(state)]
@@ -911,17 +863,9 @@ def plot_2D_4_publication(df: pd.DataFrame, title: bool = '', save: bool = False
                    , df.loc[indicesToKeep, 'PC2']
                    , c = color
                    , s=sz, marker=marker, alpha=alpha_set, linewidth=0.5)
-        # ax.scatter(df.loc[indicesToKeep, 'PC1']
-        #            , df.loc[indicesToKeep, 'PC2']
-        #            , c = color
-        #            , s=sz, marker='+', alpha=alpha_set, linewidth=0.5)
-    
-    # ax.legend(targets,loc='upper right', ncol=2, frameon=True)
+
 
     # Give the legend before adding the confident interval otherwise the ellipse would also be a legned in the plot.
-    # ax.set_xlim([-0.0, 1.0])
-    # ax.set_ylim([-0.0, 1.0])
-    # ax.grid()
     ax.set_xticks([])
     ax.set_yticks([])
     if save:
@@ -941,30 +885,13 @@ def plot_2D_4_publication_PSR(df: pd.DataFrame, title: bool = '', save: bool = F
                 '.', '.', '.', '.', '.', '.', \
                 '.', '.', '.', '.', '.', '.', \
                 '.', '.', '.', '.', '.', 'x']
-    # markers.reverse()
-    # colors.reverse()
+
     # Visualization 2D project
     fig = plt.figure(figsize=(8, 5), dpi=300)
     ax = fig.add_subplot(1, 1, 1)
-    # ax.set_xlabel('UMAP feature 1', fontsize=10)
-    # ax.set_ylabel('UMAP feature 2', fontsize=10)
-    # ax.set_title('{}'.format(title), fontsize=20)
-    # targets = [str(idx) for idx in range(0, 24)] # Change this if you want to visualize state 0
     targets = natsorted(np.unique(df['state']).astype(str).tolist())
     
     targets.reverse()
-    # for target, color, marker in zip(targets, colors, markers):
-    #     indicesToKeep = df['state'] == target
-    #     if target == '0':
-    #         sz = 10
-    #         alpha_set = 0.2
-    #     else:
-    #         sz = 20
-    #         alpha_set = 1
-    #     ax.scatter(df.loc[indicesToKeep, 'PC1']
-    #                , df.loc[indicesToKeep, 'PC2']
-    #                , c = color
-    #                , s=sz, marker=marker, alpha=alpha_set, linewidth=0.5)
     for state in targets:
         indicesToKeep = df['state'] == state
         color = colorlist[int(state)]
@@ -979,17 +906,8 @@ def plot_2D_4_publication_PSR(df: pd.DataFrame, title: bool = '', save: bool = F
                    , df.loc[indicesToKeep, 'PC2']
                    , c = color
                    , s=sz, marker=marker, alpha=alpha_set, linewidth=0.5)
-        # ax.scatter(df.loc[indicesToKeep, 'PC1']
-        #            , df.loc[indicesToKeep, 'PC2']
-        #            , c = color
-        #            , s=sz, marker='+', alpha=alpha_set, linewidth=0.5)
-    
-    # ax.legend(targets,loc='upper right', ncol=2, frameon=True)
 
     # Give the legend before adding the confident interval otherwise the ellipse would also be a legned in the plot.
-    # ax.set_xlim([-0.0, 1.0])
-    # ax.set_ylim([-0.0, 1.0])
-    # ax.grid()
     ax.set_xticks([])
     ax.set_yticks([])
     if save:
@@ -1122,9 +1040,6 @@ def Plot_2d_with_croped_images(df: pd.DataFrame, img_annots,title: str = 'demo',
     root_2_remove = (r'\\asml.com\eu')
     fig = plt.figure(figsize=(8, 5), dpi=300)
     ax = fig.add_subplot(1, 1, 1)
-    # ax.set_xlabel('Feature 1', fontsize=2)
-    # ax.set_ylabel('Feature 2', fontsize=2)
-    # ax.set_title('{}'.format(title), fontsize=  10)
 
     targets = [str(idx) for idx in range(0, 24)]
 
@@ -1215,12 +1130,6 @@ def plot_2D_heatmap_progress(df: pd.DataFrame, title :str = '' , save:bool = Fal
                 '>', '*', '.', 'P', 'x', '+', \
                  '1', '2', '3', '4', '|', 'X']
 
-    
-    # fig, axs = plt.subplots(math.ceil(len(pd.unique(df['filename']))/ 3) , 3, figsize=(20, 25), sharex=True, sharey=True)
-    # suptitle = 'Transition of state {} to state {}\n\n'.format(df['state'].iloc[0],df['state'].iloc[-1])
-
-    # fig.suptitle(suptitle)
-    # fig.subplots_adjust(hspace=.8, wspace=.001)
     fig = plt.figure(figsize=(8, 5), dpi=300)
     ax = fig.add_subplot(1, 1, 1)
     recordings = df['filename'].unique()
@@ -1250,29 +1159,6 @@ def plot_2D_heatmap_progress(df: pd.DataFrame, title :str = '' , save:bool = Fal
                         c = colors[int(state)],
                         marker = markers[int(state)],
                         s = sz, alpha= 1, edgecolors= 'black',linewidths= 0.5,label = state,cmap= 'winter')
-
-            # im = ax.scatter(file_df.loc[indicesToKeep,'PC1'],
-            #            file_df.loc[indicesToKeep,'PC2'],
-            #            c = (file_df.loc[indicesToKeep,'frameID'].astype(int)) / np.max(file_df.loc[indicesToKeep,'frameID'].astype(int)),
-            #         #    marker = markers[int(state)],
-            #             marker= inter_markers[file_ID+3],
-            #            s = sz, alpha= 0.2, edgecolors= 'black',linewidths= 0.5,label = f'{str(filename)}',cmap= 'plasma')
-            # im = ax.scatter(file_df.loc[indicesToKeep,'PC1'],
-            #                 file_df.loc[indicesToKeep,'PC2'],
-            #                 c = list(file_df.loc[indicesToKeep].index/np.max(file_df.loc[indicesToKeep].index)),
-            #                 marker= markers[file_ID],
-            #                 s = sz, alpha= 0.2, edgecolors= 'black',linewidths= 0.5,label = f'{str(filename)}',cmap= 'winter')
-            
-        # ax.set_xticks([])
-        # ax.set_yticks([])
-        # ax.set_xlim([-0.1,1.1])
-        # ax.set_ylim([-0.1, 1.1])
-        # handles, labels = plt.gca().get_legend_handles_labels()
-        # by_label = dict(zip((labels), (handles)))
-        # plt.legend(by_label.values(), by_label.keys())
-
-        # if file_ID> 5:
-            # break
 
     cbar = fig.colorbar(im, orientation = 'vertical',pad=0.01)
     cbar.set_label(label  = 'Normalized progress (%)',size = 'large',weight='bold')

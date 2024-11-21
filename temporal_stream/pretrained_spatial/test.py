@@ -51,10 +51,6 @@ def test_metric(model, data_dir, psr_load_path , split="test", w=224, h=224, dis
     custom_knn = CustomKNN(distance_fn, batch_size=64)
     calculator = YourCalculator(k="max_bin_count", avg_of_avgs=False, knn_func=custom_knn,
                                 include=("precision_at_1", "mean_average_precision_at_r", "f1_at_1"))
-    # print(f"test embedding:{test_embeddings.shape}")
-    # print(f"test targets:{test_targets.shape}")
-    # print(f"train embedding:{train_embeddings.shape}")
-    # print(f"train targets:{train_targets.shape}")
     acc_dict = get_acc_dict(calculator, test_embeddings, test_targets, train_embeddings, train_targets)
     del calculator
     if torch.cuda.is_available():
@@ -139,6 +135,7 @@ def test_metric_generalization(model, data_dir, w=224, h=224, dist="cos"):
     return acc_dict
 
 
+# Test the features
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("run_path", type=str, help='Path to the run directory, e.g. ./runs/run_name')

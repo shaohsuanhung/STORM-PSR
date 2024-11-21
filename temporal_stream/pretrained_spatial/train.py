@@ -1,9 +1,5 @@
 """
 Pre-train the spatial encoder
-
-author: Shao-Hsuan Hung
-email: shaohsuan.hung1997@gmail.com
-date: 24/09/2024
 """
 import time
 import datetime
@@ -25,7 +21,7 @@ from test import test_metric
 #
 from temporal_aware_CL.temporal_aware_datasets import TemporalAwareContrastiveDataset, get_recording_list, RealContrastiveDatasetWithInters_PSR
 
-############################## Global variable Setting #################################
+############################## Dataset specific variable Setting #################################
 MECCANO_categories = [
      'background',        
      '10001000100000000', # state 1
@@ -229,14 +225,6 @@ if __name__ == "__main__":
     #--- Set options
     args = set_options()
     print(args)
-
-    ###################### Lazy mode, remove when handovering ###############
-    # rec_path = Path("/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/meccano")
-    # psr_load_path = Path("/shared/nl011006/res_ds_ml_restricted/shaohung/MECCANO-PSR")
-    # args.data_path = rec_path
-    # args.psr_label_path = psr_load_path
-    #########################################################################
-
     #--- Check the args of dataset is correct
     #TODO: Need further implementation to run on other datasts
     if 'industreal' in str(args.data_path).lower():

@@ -1,18 +1,24 @@
 # General input/ouput info
-frames: 32
+frames: 33
 num_classes: 11 
 img_size: 224
 spatial_frozen: False
 ckpt_dir : None
 
-# hiddeb should be 384, 384
 # Spatial Transformer
 spatial_args:
-  hidden: 128 # should be 384
+  hidden: 384
   channels: 3
   second_head_input: 128
   model: 'vit_small_patch16_224.augreg_in21k_ft_in1k'
-  weights_dir: '/shared/nl011006/res_ds_ml_restricted/shaohung/pre-trained_model/vit_no_inter_KFA_trained.pth'
+  weights_dir: 'YOUR OWN PT WEIGHTS DIR'
 
+# Temporal Transformer
+temporal_type: transformer
 temporal_args:
-  frames: 32
+  dim: 384
+  depth: 3
+  heads: 4
+  dim_head: 128
+  mlp_dim: 4096
+  dropout: 0.1

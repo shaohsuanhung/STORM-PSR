@@ -187,38 +187,6 @@ def batch_log_print(d, i, t, split):
     print(str)
 
 
-def adjust_learning_rate(args, optimizer, epoch, cur_iter, max_iter):
-    """Sets the learning rate to the according to POLICY"""
-    for ind, step in enumerate(STEPS):
-        if epoch < step:
-            break
-        ind = ind - 1
-
-        lr = args.lr * LRS[ind]
-
-    # First 1 epochs warmup
-    if epoch <= 1:
-        # Linear warmup from warmup learning rate to learning rate
-        cur_iter = (epoch-1) * max_iter + cur_iter
-        lr = args.warmup_rate + cur_iter / \
-            (max_iter * 1) * (args.lr - args.warmup_rate)
-
-    else:
-        # Cosine learning rate
-        cur_iter = (epoch - 2) * max_iter + cur_iter
-        full_iter = (args.epochs - 1) * max_iter
-
-        # Minimum learning rate
-        min_learning_rate = 1e-6
-        lr = min_learning_rate + (args.lr - min_learning_rate) * \
-            (np.cos(np.pi * cur_iter / full_iter) + 1.0) * 0.5
-
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
-
-    return lr
-
-
 def classification_result(loader, model, ACTION_LABEL):
     y_pred = []  # save predction
     y_true = []  # save ground truth
@@ -288,25 +256,6 @@ def save_model_state_dict(args,model,optimizer,scheduler,epoch,save_path,BEST:bo
 
     return
 
-def print_confusion_matrix(confusion_matrix, axes, class_label, class_names, fontsize=14):
-
-    df_cm = pd.DataFrame(
-        confusion_matrix, index=class_names, columns=class_names,
-    )
-
-    try:
-        heatmap = sn.heatmap(df_cm, annot=True, fmt="d", cbar=False, ax=axes)
-    except ValueError:
-        raise ValueError("Confusion matrix values must be integers.")
-    heatmap.yaxis.set_ticklabels(
-        heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=fontsize)
-    heatmap.xaxis.set_ticklabels(
-        heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
-    axes.set_ylabel('True label')
-    axes.set_xlabel('Predicted label')
-    axes.set_title("Confusion Matrix for the class - " + class_label)
-
-
 if __name__ == "__main__":
     #-- Before the training
     args = set_options()
@@ -348,7 +297,6 @@ if __name__ == "__main__":
     NUM_FRAMES = cfg.frames
     # --- Load model, different data type would load different model
     if args.dtype == 'embedding':
-        #######################################
         preprocess = transforms.Compose([
             # To (FRAMES x [dim of embedding vector]) tensor
             EmbeddinglistToTensor(),
@@ -442,8 +390,6 @@ if __name__ == "__main__":
     if args.resume > 0:
         # Reset the best_val_loss for saving the checkpoints.
         print("Loading opti and scheduler")
-        # model.load_state_dict(torch.load(
-        #     f'{save_ckpt_dir}/weights_{args.resume}.pth'))
         print(f"Load checkpoint at {args.resume} epoch...")
         try:
             optimizer.load_state_dict(torch.load(
@@ -532,19 +478,13 @@ if __name__ == "__main__":
                 val_loss = loss.item()
                 val_loss_list.append(val_loss)
                 y_pred.extend(output_pred)  # save prediction
-                y_true.extend(target.data.cpu().numpy())  # save ground truth From 3-d array to 2-d array (cannot use append, would get 3d array)
-                # output = softmax(output)
-                # print("Output size:\n")
-                # print(output.size())
-                # print(torch.sum(torch.argmax(output, dim=1) == target).cpu().detach().item() / args.batch_size)
+                y_true.extend(target.data.cpu().numpy())
                 # val_acc = torch.sum(torch.argmax(output, dim=1) == target).cpu().detach().item() / args.batch_size
                 # val_acc =  torch.sum(output.round() == target).cpu().detach().item() / args.batch_size
                 val_acc = f1_score(target.data.cpu().numpy(),output_pred, labels=state_list, average=None, zero_division=0.0)
                 val_acc_list.append(np.mean([score for score in val_acc if math.isnan(score) != True]))
                 val_acc = np.mean([score for score in val_acc if math.isnan(score) != True])
-            # result = get_metrics(target, output, f_only = True)
-            # print(result)
-            #
+
             progress.set_description(f"Epoch: {epoch}, val loss: {val_loss:.6f}, macro F1 score:{val_acc:.6f}")
             # --- Summary per iter
             # tensorboard.add_scalar('val_loss', val_loss,epoch * len(val_loader) + i)

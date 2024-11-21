@@ -1,7 +1,3 @@
-"""
-Most of the functions are adpoted from the repo https://timschoonbeek.github.io/state_rec.html
-"""
-
 import torch
 import torch.utils.data
 import torchvision

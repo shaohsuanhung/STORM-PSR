@@ -215,65 +215,6 @@ class GradualWarmupScheduler(_LRScheduler):
         else:
             return super(GradualWarmupScheduler, self).step(epoch)
 
-def get_metrics(gt, pred, verbose=False, f_only=False):
-    _, recall, fscore, _ = precision_recall_fscore_support(
-        gt, pred, average='weighted', zero_division=0.0)
-    _, recall_macro, fscore_macro, _ = precision_recall_fscore_support(
-        gt, pred, average='macro', zero_division=0.0)
-
-    if f_only:
-        result = {
-            "recall": float(recall),
-            "fscore": float(fscore),
-            "fscore_macro": float(fscore_macro)}
-        return result
-
-    classes = None
-    if np.max(gt) > 1:
-        gt_ = to_one_hot(gt)
-        pred_ = to_one_hot(pred)
-
-        # we must filter out places where ground truth has 0 true values since roc auc is undefined otherwise
-        del_cols = []
-        classes = []
-        for i in range(gt_.shape[1]):
-            non_zero = np.count_nonzero(gt_[:, i])
-            if non_zero == 0:
-                del_cols.append(i)
-            else:
-                classes.append(f"state {i}")
-        print(
-            f"Deleting classes {del_cols} because these states are not in test set!")
-        gt_ = np.delete(gt_, del_cols, 1)
-        pred_ = np.delete(pred_, del_cols, 1)
-        gt = gt_
-        pred = pred_
-
-    ap = average_precision_score(gt, pred, average='weighted')
-    roc_auc = roc_auc_score(gt, pred, average='weighted', multi_class='ovo')
-
-    result = {
-        "recall": float(recall),
-        "fscore": float(fscore),
-        "fscore_macro": float(fscore_macro),
-        "ap": float(ap),
-        "roc_auc": float(roc_auc),
-    }
-
-    if verbose:
-        print(f"Recall (accuracy): \t\t {recall :.2f}")
-        print(f"F-score: \t\t\t\t {fscore :.3f}")
-        print(f"F-score macro: \t\t\t\t {fscore_macro :.3f}")
-        print(f"Area under RoC curve: \t {roc_auc:.3f}")
-        print(f"Average precision: \t\t {ap:.3f}")
-        if classes is not None:
-            for i, class_ in enumerate(classes):
-                print(f"{i}\t{class_}")
-        print(classification_report(gt, pred))
-        print('-' * 69)
-    else:
-        return result
-
 def plot_trainlog_result(epoch: int, log_dir: str, save_path: str):
     train_loss_list = list()
     train_microF1_list = list()
@@ -310,14 +251,6 @@ def plot_trainlog_result(epoch: int, log_dir: str, save_path: str):
     axs[0].set_title('Macro F1 score w.r.t epoch')
     axs[1].grid()
     axs[0].grid()
-    # axs[0].set_xticks([1, 5, 10, 15, 20, 25])
-    # axs[1].set_xticks([1, 5, 10, 15, 20, 25])
-    # axs[0].set_yticks([0.8, 0.85, 0.90, 0.95, 1])
-    # axs[0].set_yticks([0.8,0.85, 0.90, 0.95, 1])
-    # axs[0].set_ylim([0.8, 1])
-    # axs[1].set_ylim([0, 0.6])
-    # axs[0].set_xlim([1, 25])
-    # axs[1].set_xlim([1, 25])
     axs[0].set_ylabel('macro F1 score')
     axs[1].set_ylabel('Binary cross entropy loss')
     axs[1].set_title('Binary cross entropy loss w.r.t. epoch')
@@ -329,98 +262,3 @@ def plot_trainlog_result(epoch: int, log_dir: str, save_path: str):
     plt.close()
     return
 
-def createConfusionMatrix(loader, model):
-    y_pred = []  # save predction
-    y_true = []  # save ground truth
-
-    # iterate over data
-    for inputs, labels in loader:
-        inputs = torch.autograd.Variable(src).cuda()
-        labels = torch.autograd.Variable(target).cuda()
-        # Check the number of labels...
-
-        with torch.no_grad():
-            output = model(inputs)  # Feed Network
-            # output = (torch.max(torch.exp(output), 1)[1]).data.cpu().numpy()
-            # for PSR multi-label classification
-            output = torch.sigmoid(output)
-            output = output.round().data.cpu().numpy()
-
-        y_pred.extend(output)  # save prediction
-
-        labels = labels.data.cpu().numpy()
-        y_true.extend(labels)  # save ground truth
-
-    # constant for classes
-    # classes = [(idx) for idx in range(24)]
-    classes = [(idx) for idx in range(11)]
-
-    # Build confusion matrix
-    cf_matrix = confusion_matrix(
-        y_true, y_pred, labels=classes, normalize='true')
-
-    # print("y_true:{}",y_true)
-    # print("y_pred:{}",y_pred)
-    # print("cf_matrix:\n{}\n",cf_matrix)
-    # print(type(cf_matrix))
-    # df_cm = pd.DataFrame(cf_matrix / np.sum(cf_matrix, axis=1), index=[i for i in classes],
-    #                      columns=[i for i in classes])
-    plt.figure(figsize=(12, 7))
-    return sn.heatmap(cf_matrix, annot=True).get_figure()
-
-def createMutliLabelConfusionMatrix(loader, model):
-    y_pred = []  # save predction
-    y_true = []  # save ground truth
-
-    # iterate over data
-    for inputs, labels in loader:
-        inputs = torch.autograd.Variable(src).cuda()
-        labels = torch.autograd.Variable(target).cuda()
-        # Check the number of labels...
-
-        with torch.no_grad():
-            output = model(inputs)  # Feed Network
-            # output = (torch.max(torch.exp(output), 1)[1]).data.cpu().numpy()
-            # for PSR multi-label classification
-            output = torch.sigmoid(output)
-            output = output.round().data.cpu().numpy()
-
-        y_pred.extend(output)  # save prediction
-
-        labels = labels.data.cpu().numpy()
-        y_true.extend(labels)  # save ground truth
-
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    mlcf_mtx = multilabel_confusion_matrix(y_true, y_pred)
-    f, axes = plt.subplots(3, 4, figsize=(25, 15))
-    cmap = "Blues"
-    axes = axes.ravel()
-    for i in range(11):
-        # disp = ConfusionMatrixDisplay(confusion_matrix(y_true[:,i],
-        #                                             y_pred[:,i]),
-        #                             display_labels=[0, i])
-        # disp.plot(ax=axes[i], values_format='.4g')
-        # disp.ax_.set_title(f'class {i}')
-        # if i<10:
-        #     disp.ax_.set_xlabel('')
-        # if i%5!=0:
-        #     disp.ax_.set_ylabel('')
-        # disp.im_.colorbar.remove()
-        axes[i].set_title(i)
-        disp = ConfusionMatrixDisplay(confusion_matrix=mlcf_mtx[i], display_labels=str(i)).plot(
-            include_values=True, cmap=cmap, ax=axes[i], values_format='.3f')
-        axes[i].xaxis.set_ticklabels(['', '', '', ''])
-        axes[i].set_xlabel('')
-        axes[i].tick_params(axis='x', which='both',
-                            bottom=False, top=False, labelbottom=False)
-        disp.im_.colorbar.remove()
-
-    plt.subplots_adjust(wspace=0.10, hspace=0.1)
-    f.colorbar(disp.im_, ax=axes)
-    buf = io.BytesIO()
-    plt.savefig(buf, format='jpeg')
-    buf.seek(0)
-    image = PIL.Image.open(buf)
-    image = ToTensor()(image).unsqueeze(0)
-    return image

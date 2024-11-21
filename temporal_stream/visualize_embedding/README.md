@@ -2,11 +2,11 @@
 ## Installation 
 
 ```
-$ git clone [To be add, url of this repo in the public github]
-$ cd KeyStep/temporal_stream/visualize_embedding
-$ conda create -n KeyStep python=3.9 -y
-$ conda activate KeyStep
-$ pip install -r KeyStep/temporal_stream/visualize_embedding/requirements.txt
+$ git clone [Redacted, url of this repo in the public github]
+$ cd STORM-PSR/temporal_stream/visualize_embedding
+$ conda create -n storm-psr python=3.9 -y
+$ conda activate storm-psr
+$ pip install -r storm-psr/temporal_stream/visualize_embedding/requirements.txt
 ```
 
 ## Usage

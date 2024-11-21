@@ -8,9 +8,8 @@ import torch
 from torch.utils.data import DataLoader
 import platform
 import yaml
-from model import VTN_tmp_only, No_temporal_encoder, SimStepNet, SimStepNet_MLP
+from model import VTN_tmp_only, No_temporal_encoder, STORM, STORM_MLP
 from torchvision import transforms
-# from video_dataset_PSR import EmbeddingFrameDataset_PSR, EmbeddingRecord_PSR, EmbeddinglistToTensor, ImglistToTensor
 from video_dataset_action_label import EmbeddingFrameDataset_PSR, EmbeddingRecord_PSR, EmbeddinglistToTensor, ImglistToTensor, VideoRecord, get_image
 from utils import load_yaml, load_embedding_df, load_embedding_and_label_df
 from tqdm import tqdm
@@ -22,28 +21,20 @@ import os
 
 DEVICE = torch.device(
     'cuda') if torch.cuda.is_available() else torch.device('cpu')
-################################ -- Global variable Setting --#####################################
+#-- Global variable Setting 
 if platform.system() == "Windows":
     base_dir = Path(
-        r"\\asml.com\eu\shared\nl011006\res_ds_ml_restricted\shaohung\train_log")
+        r"\your_path")
     data_dir = Path(
-        r"\\asml.com\eu\shared\nl011006\res_ds_ml_restricted\TimSchoonbeek\meccano\frames")
-    log_dir = Path(
-        r"\\asml.com\eu\shared\nl011006\res_ds_ml_restricted\shaohung\train_log")
+        r"\your_data_path")
     ckpt_dir = data_dir
     psr_path = Path(
-        r"\\asml.com\eu\shared\nl011006\res_ds_ml_restricted\shaohung\IndustReal_corrected_PSR")
+        r"\your_label_path")
 else:
-    base_dir = Path(
-        "/shared/nl011006/res_ds_ml_restricted/shaohung/train_log")
-    data_dir = Path(
-        "/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/meccano/frames")
-    ckpt_dir = Path("/hpc/scratch/shaohung/checkpoints")
-    log_dir = Path("/shared/nl011006/res_ds_ml_restricted/shaohung/train_log")
-    psr_path = Path("/shared/nl011006/res_ds_ml_restricted/shaohung/MECCANO-PSR")
-
-
-################################ -- Global variable Setting --#####################################
+    base_dir = Path("your/run_path")
+    data_dir = Path("your/data_path")
+    ckpt_dir = Path("your/checkpoint_path")
+    psr_path = Path("your/label_path")
 
 
 def set_options():
@@ -148,13 +139,6 @@ def load_images_from_list(img_path_list: list,  resize = None, existing_frames =
 if __name__ == "__main__":
     # -- Setup save path, data path, load dataset, load model
     test_args = set_options()
-    ######### ----------------- Lazy version ---------###############
-    # test_args.run_path = '0628_skip_factor5_F32_B16_ep100'
-    # test_args.checkpoint = 'weights_51'
-    # test_args.split = 'test'
-    # test_args.dtype = 'video'
-    # test_args.skip_factor = 5
-    #################################################################
     run_path, save_dir = setup_path(test_args)
     model_weight_path = run_path / "checkpoints" / \
         f"{test_args.checkpoint}.pth"
@@ -213,7 +197,6 @@ if __name__ == "__main__":
                 
         #-- Setup data preprocessing pipeline base on the data type
         preprocess = transforms.Compose([EmbeddinglistToTensor(),])
-        #-- [Importanat!] Currrently there are not corrrected ASD label. So don't use the ASD label in the dataframe!
         testset_df = load_embedding_and_label_df(
             Path(test_args.csv_dir) / test_args.split, None, statics=False, normalized=False)
         test_data_list = [EmbeddingRecord_PSR(testset_df[testset_df['filename'] == name],
@@ -230,19 +213,19 @@ if __name__ == "__main__":
     elif test_args.dtype == 'video':
         #-- load model
         if test_args.baseline:
-            model = SimStepNet_MLP(**vars(cfg),args=test_args)
+            model = STORM_MLP(**vars(cfg),args=test_args)
             # Get spatial enc, if already fine-tuning the baseline model. 
-            # try:
-            #     print(f"Load model from {model_weight_path}")
-            #     model.spatial_enc.load_state_dict(torch.load(model_weight_path)['spatial_enc'])
-            # except:
-            #     print(f"Debug mode, train tmp enc but test with video data type...")
-            #     model.spatial_enc.load_state_dict(torch.load('/shared/nl011006/res_ds_ml_restricted/shaohung/train_log/runs_MECCANO/stage1_log/train_KFA_no_bg/checkpoints/best.pth'))
+            try:
+                print(f"Load model from {model_weight_path}")
+                model.spatial_enc.load_state_dict(torch.load(model_weight_path)['spatial_enc'])
+            except:
+                print(f"Debug mode, train tmp enc but test with video data type...")
+                model.spatial_enc.load_state_dict(torch.load(f'{test_args.run_name}/checkpoints/best.pth'))
             model.spatial_enc.load_state_dict(torch.load(model_weight_path)['spatial_enc'])
             model.mlp_head.load_state_dict(torch.load(model_weight_path)['mlp_head'])
             print("load pretrained mlp_head weights...")
         else:
-            model = SimStepNet(**vars(cfg),args=test_args)
+            model = STORM(**vars(cfg),args=test_args)
 
         if platform.system() == "Windows":
             model.spatial_enc.load_state_dict(
@@ -253,15 +236,12 @@ if __name__ == "__main__":
                 torch.load(model_weight_path, map_location=torch.device('cpu'))['mlp'])
             
         else:
-            ###################### Should be change back to only the try cases.
             try:
                 print(f"Load model from {model_weight_path}")
                 model.spatial_enc.load_state_dict(torch.load(model_weight_path)['spatial_enc'])
             except:
                 print(f"Debug mode, train tmp enc but test with video data type...")
-                model.spatial_enc.load_state_dict(torch.load('/shared/nl011006/res_ds_ml_restricted/shaohung/train_log/runs_MECCANO/stage1_log/train_KFA_no_bg/checkpoints/best.pth'))
-            ###########################
-            # model.spatial_enc.load_weights_encoder('/shared/nl011006/res_ds_ml_restricted/shaohung/pre-trained_model/vit_no_inter2.pth')
+                model.spatial_enc.load_state_dict(torch.load(f'{test_args.run_name}/checkpoints/best.pth'))
             print("load pretrained spatial weights...")
             model.temporal_enc.load_state_dict(torch.load(model_weight_path)['temporal_enc'])
             print("load pretrained temporal weights...")
@@ -316,17 +296,10 @@ if __name__ == "__main__":
 
             elif test_args.dtype == 'video':
                 if test_args.skip_factor != 0 :
-                    # Can we consider this method: (1) [0,3,6,9,12], [3,6,9,12,15], [6,9,12,15,18] -> This would save 10x times. 
-                    # Instead of this: (2) [0,3,6,9,12], [1,4,7,10,13], [2,5,8,11,14] -> Too slow 
-                    # frames = recording.load_images_from_list(clips)
-                    # src = batch1(preprocess(frames))
-                    #
                     frames = load_images_from_list(clips, existing_frames = prev_frames, preprocess = preprocess)
                     prev_frames = frames
                     src = batch1(frames)
                 else:
-                    # frames = recording.load_images_from_list(clips)
-                    # src = batch1(preprocess(frames))
                     frames = load_images_from_list(clips, existing_frames = prev_frames,preprocess = preprocess)
                     prev_frames = frames
                     src = batch1(frames)
@@ -340,30 +313,16 @@ if __name__ == "__main__":
 
             with torch.no_grad():
                 output = model(src) # embed: [Bxfxd]
-                # embed = model.spatial2temporal(model.spatial_enc(model.collapse_frames(src)))
-                ### Save embedding:
+                #-- Save embedding:
                 output = torch.sigmoid(output)
                 output_pred = output.round().to(dtype=torch.int32).data.cpu().numpy()
 
-
-            # emb_list.append(embeddings[:,-5,:].data.cpu().numpy().reshape(-1).tolist())
             conf_list.append(output.data.cpu().numpy().reshape(-1).tolist())
             label_list.append(clips_label)
             pred_list.append(output_pred.reshape(-1).tolist())
             name_list.append(recording.name)
             framenbr_list.append(clips_frameID)
-            #
-            # emb_list.append(embed[:,-1,:].data.cpu().numpy().reshape(-1).tolist()) # last 1 frame
-            # emb_list.append(src[:,-1,:].data.cpu().numpy().reshape(-1).tolist()) # last 1 frame
 
-            # result_df = pd.DataFrame({"clip": name_list, "framenr": framenbr_list,
-            #                       "GT": label_list, "Pred": pred_list, "Conf": conf_list,'embed':emb_list})
-            # result_df.to_csv(f'{save_dir}/{recording.name}_results_pred.csv')
-            
-        #### Correnct one
         result_df = pd.DataFrame({"clip": name_list, "framenr": framenbr_list,
                                       "GT": label_list, "Pred": pred_list, "Conf": conf_list})
-        #### Debug one
-        # result_df = pd.DataFrame({"clip": name_list, "framenr": framenbr_list,
-        #                           "GT": label_list, "Pred": pred_list, "Conf": conf_list,'embed':emb_list})
         result_df.to_csv(f'{save_dir}/{recording.name}_results_pred.csv')

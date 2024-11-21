@@ -315,9 +315,9 @@ class ContrastiveModel(nn.Module):
                     return F.normalize(feat, dim=1)
 
 
-class SimStepNet(nn.Module):
+class STORM(nn.Module):
     def __init__(self, *, frames, num_classes, img_size ,spatial_frozen, ckpt_dir, spatial_args,temporal_type, temporal_args,args = None):
-        super(SimStepNet, self).__init__()
+        super(STORM, self).__init__()
         # -- Convert args
         self.seq_len = frames
         spatial_args = Namespace(**spatial_args)
@@ -390,9 +390,9 @@ class SimStepNet(nn.Module):
         return self.mlp_head(x)
 
     
-class SimStepNet_MLP(nn.Module):
+class STORM_MLP(nn.Module):
     def __init__(self, *, frames, num_classes, img_size, spatial_frozen, ckpt_dir, spatial_args, temporal_args, args =None):
-        super(SimStepNet_MLP, self).__init__()
+        super(STORM_MLP, self).__init__()
         spatial_args = Namespace(**spatial_args)
         temporal_args = Namespace(**temporal_args)
         

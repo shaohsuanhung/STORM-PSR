@@ -1,9 +1,5 @@
 """
 Dataset for trainning the spatial encoder in a weakly supervised setting using Key-frame sampling (KFS)
-
-author: Shao-Hsuan Hung
-email: shaohsuan.hung1997@gmail.com
-date: 24/09/2024
 """
 #%%
 import torch
@@ -61,9 +57,7 @@ class TemporalAwareContrastiveDataset(torch.utils.data.Dataset):
             synth_annotations["images"] = synth_annotations["images"][:first_bg_idx]
             synth_annotations["labels"] = synth_annotations["labels"][:first_bg_idx]
             synth_annotations["bbox"] = synth_annotations["bbox"][:first_bg_idx]
-            # print(
-            #     f"N samples: {len(synth_annotations['labels'])} \t Unique training classes after deleting intermediate "
-            #     f"classes: {np.unique(synth_annotations['labels'])}")
+
             
             #-- Randomly shuffle data (seed fixed = labels keep matching)
             random.Random(args.seed).shuffle(synth_annotations["images"])
@@ -127,7 +121,6 @@ class TemporalAwareContrastiveDataset(torch.utils.data.Dataset):
         #-- sample images per class
         for class_id in sampled_classes:
             # get real images
-            # print(f"Class id:{class_id}")
             class_idxes = np.where(self.real_annotations['labels'] == class_id)[0]
 
             # if we don't find any, simply don't load real positives, load 2x synt positives (if n_syn !=0)
@@ -142,14 +135,10 @@ class TemporalAwareContrastiveDataset(torch.utils.data.Dataset):
                     label = self.real_annotations['labels'][sampled_idx]
                     image_path = self.real_annotations["images"][sampled_idx]
                     img = get_image(image_path, size=self.resize_to)
-                    # print('-'*50)
-                    # print(f"\nPath name:{image_path}\n")
-                    # print(f"Label name:{label}\n")
-                    # print('-'*50)
+
                     images[c, :, :, :] = self.real_transforms(img)
                     labels[c] = label
                     labels_array[c] = label
-                    # print(f"\nAppend {label} @position {c}\n")
                     c += 1
 
             #-- get synthetic images. Sample also n_real if there were no real images for this class
@@ -182,9 +171,6 @@ class TemporalAwareContrastiveDataset(torch.utils.data.Dataset):
                 images[c, :, :, :] = self.real_transforms(img)
                 labels[c] = label
                 labels_array[c] = label
-                # print(f"Path name:{image_path}")
-                # print(f"Append {label} @position {c}")
-                # print(f"Label name:{label}")
                 c += 1
 
         return images, labels
@@ -196,10 +182,10 @@ class RealContrastiveDatasetWithInters_PSR(torch.utils.data.Dataset):
     def __init__(self, dir, psr_load_path, split = "train", state_category = None,w=224, h=224, skip_factor=10, only_clean=False, args = None):
         # For recording under dir:
         self.image_dir = dir / split
+        
         #   glob every frame -> sort this 
         #   The append to the image_dir_list
         df_state_imgs_from_psr, df_hard_bg_from_psr = KFS_sampling(rec_path = Path(dir), psr_load_path = Path(psr_load_path), N_frame2sample= 20,split = split, state_categories = state_category, error_state= False)
-        # How to determine label? -> We use the same logic to determin the assembly state as KFA ....
         df = pd.concat([df_state_imgs_from_psr, df_hard_bg_from_psr], ignore_index= True)
         self.annotations = dict({'labels':[],'images':[]})
         self.annotations['images'] = np.array(df['path'])
@@ -234,7 +220,7 @@ class RealContrastiveDatasetWithInters_PSR(torch.utils.data.Dataset):
 class testtime_dataset(torch.utils.data.Dataset):
     # To boost the computing speed by multiple subprocess (num_workers)
     def __init__(self,rec_path,split, preprocess = None):
-        #1. Recording list under the split 
+        #-1. Recording list under the split 
         self.preprocess = preprocess
         if split == 'train':
             recordings = get_recording_list(rec_path, train=True)
@@ -261,7 +247,7 @@ class testtime_dataset(torch.utils.data.Dataset):
             elif 'meccano' in str(rec_path).lower():
                 filename_list.extend([paths[0].parents[0].name for _ in range(len(paths))])
             else:
-                raise NotImplementedError(f"Currently only support industreal and meccano, but get {args.data_path}")
+                raise NotImplementedError(f"Currently only support industreal and meccano, but get {rec_path}")
             
             frameID.extend([img.name for img in paths])
 
@@ -413,7 +399,7 @@ def KFS_sampling(rec_path: Path, psr_load_path: Path, split: str, N_frame2sample
         elif('meccano' in str(psr_load_path).lower()):
             lenght_of_frames.update({rec.name:len(glob.glob(os.path.join(rec,'*.jpg')))})    
         else:
-            raise NotImplementedError(f"Expect indsutreal or meccano dataset. But get {args.psr_label_path}.")
+            raise NotImplementedError(f"Expect indsutreal or meccano dataset. But get {psr_load_path}.")
     
     key_frame_df = pd.DataFrame(data=data_read,columns=['filename','frame','raw state label','state'])
     #-- Sampling state images from key-frames
@@ -514,77 +500,3 @@ def get_recording_list(folder: Path, train=False, val=False, test=False) -> list
     recording_list = [item for sublist in recordings for item in sublist]
     
     return natsorted(recording_list)
-
-#%% Test function
-if __name__=='__main__':
-    import argparse
-    from torch.utils.data import DataLoader
-    import matplotlib.pyplot as plt 
-    parser = argparse.ArgumentParser(description='Passing arguments.')
-
-    # Run parameters
-    parser.add_argument("--data_path", type=str, default="/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/industreal_cont",
-                        help='Location of the training data')
-    parser.add_argument("--n_iters", type=int, default=500,
-                        help='Number of iterations per epoch. Needed because we randomly sample our batches.')
-    # Data parameters
-    parser.add_argument("--n_classes", type=int, default=15,
-                        help='Number of classes to sample per batch')
-    parser.add_argument("--n_real", type=int, default=8,
-                        help='Number of real-world images per class')
-    parser.add_argument("--n_synth", type=int, default=0,
-                        help='Number of synthetic images per class')
-    parser.add_argument("--n_bg", type=int, default=16,
-                        help='Number of background images to sample')
-    parser.add_argument("--img_w", type=int, default=224,
-                        help='width and height of the image inputs to the model.')
-    parser.add_argument("--img_h", type=int, default=224,
-                        help='width and height of the image inputs to the model.')
-    parser.add_argument("--exclude_bg", default=False, action='store_true',
-                        help='ISIL modification - Excludes the background (intermediate) from acting as positives in the loss.')
-    parser.add_argument("--seed", type=int, default=1234,
-                        help='Seed for splitting training data')
-    parser.add_argument("--channels", type=int, default=3,
-                        help='Input channels in data')
-    parser.add_argument("--workers", type=int, default=8,
-                        help='Number of workers for the dataloader')
-    parser.add_argument("--batch_size", type=float, default=32,
-                        help='Batch size of the validation dataloader')
-    parser.add_argument("--kernel_size", type=float, default=5,
-                        help='Data augmentation - kernel of gaussian blur')
-    parser.add_argument("--sigma_l", type=float, default=0.01,
-                        help='Data augmentation - lower boundary for random gaussian blur')
-    parser.add_argument("--sigma_h", type=float, default=2.0,
-                        help='Data augmentation - upper boundary for random gaussian blur')
-    parser.add_argument("--bright", type=float, default=0.1,
-                        help='Data augmentation - brightness jitter max')
-    parser.add_argument("--sat", type=float, default=0.7,
-                        help='Data augmentation - saturation jitter max')
-    parser.add_argument("--cont", type=float, default=0.1,
-                        help='Data augmentation - contrast jitter max')
-    parser.add_argument("--rotate", default=False, action='store_true',
-                        help='Data augmentation - randomly rotate images 90 degree with p=0.5')
-    
-    # Use the default value...
-    args, _ = parser.parse_known_args()
-
-    rec_path = Path("/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/IndustReal/recordings")
-    psr_load_path = Path("/shared/nl011006/res_ds_ml_restricted/shaohung/IndustReal_corrected_PSR")
-    split = 'train'
-    recordings = get_recording_list(rec_path, train=True)
-    train_dataset = TemporalAwareContrastiveDataset(args,psr_load_path,rec_path, split = split)
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=8, drop_last = False)
-    img_num = 0
-    img_num_0 = 0
-    for idx, (imgs,labels) in enumerate(train_loader):
-        from tqdm import tqdm
-        from torch.utils.data import DataLoader
-        rec_path = Path("/shared/nl011006/res_ds_ml_restricted/TimSchoonbeek/meccano/frames")
-        dataset = testtime_dataset(rec_path, split='train')
-        loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=16)
-        progress = tqdm(enumerate(loader),total=len(loader))
-
-        for i, img in progress:
-            dataset.progress+=1
-
-            print(dataset.df.loc[dataset.progress]['Path'])

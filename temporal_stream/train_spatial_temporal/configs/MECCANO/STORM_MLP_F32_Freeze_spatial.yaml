@@ -1,14 +1,13 @@
-# General input/ouput info
+#  General input/ouput info
 frames: 32
-num_classes: 11 
+num_classes: 17
 img_size: 224
-spatial_frozen: False
+spatial_frozen: True
 ckpt_dir : None
 
-# hiddeb should be 384, 384
 # Spatial Transformer
 spatial_args:
-  hidden: 128 # should be 384
+  hidden: 128
   channels: 3
   second_head_input: 128
   model: 'vit_small_patch16_224.augreg_in21k_ft_in1k'

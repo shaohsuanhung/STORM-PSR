@@ -1,10 +1,6 @@
 #%%
 """
 Use the script to extract embeddings from spaital encoder.
-
-author: Shao-Hsuan Hung
-email: shaohsuan.hung1997@gmail.com
-date: 24/09/2024
 """
 import argparse
 import torch
