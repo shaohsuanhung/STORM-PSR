@@ -25,7 +25,7 @@ pip install -r STORM-PSR/requirements.txt
 
 
 ## Object detection stream model
-Please refer to [assembly state detection tutorial](https://github.com/TimSchoonbeek/IndustReal/tree/main/ASD) to train the object detection stream model.
+Please refer to the IndustReal assembly state detection [tutorial](https://github.com/TimSchoonbeek/IndustReal/tree/main/ASD) to train the assembly state detection stream.
 
 ## Temporal Stream model
 ### To train a temporal-stream model
