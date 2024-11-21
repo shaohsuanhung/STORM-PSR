@@ -59,4 +59,5 @@ sh evaluate_TemporalStream.sh
 
 
 ### To visualize spatial embedding using UMAP / t-SNE
-Please refer to [STORM-PSR/temporal_stream/visualize_embedding/visualized_embedding.ipynb](STORM-PSR/temporal_stream/visualize_embedding/visualized_embedding.ipynb) to visualize the spatial embedding using UMAP / t-SNE.
+Please refer to [STORM-PSR/temporal_stream/visualize_embedding/visualize_embedding.ipynb](./temporal_stream/visualize_embedding/visualize_embedding.ipynb) to visualize the spatial embedding using UMAP / t-SNE.
+
