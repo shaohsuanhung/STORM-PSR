@@ -7,9 +7,10 @@ rec_path=PATH_to_the_rec_folder
 psr_label_path=PATH_to_the_psr_label_folder
 video_dir=PATH_to_the_video_folder
 split=test
-#- Give the prior procedure information either IndustReal dataset or MECANO dataset
+# Give the prior procedure information either IndustReal dataset or MECANO dataset
 # procedure_info=./utils/procedure_info_MECCANO.json
 procedure_info=./utils/procedure_info_IndustReal.json
+
 
 
 #- Evaluation parameters setting
@@ -27,5 +28,5 @@ width=1280
 height=720
 bbox=True
 
-
-python evaluate_TemporalStream.py --run_path $run_path --save_dir_base $save_dir_base --rec_path $rec_path --psr_label_path $psr_label_path  --procedure_info $procedure_info --split $split --conf_threshold $conf_threshold --cum_conf_threshold $cum_conf_threshold --cum_decay $cum_decay --num_dig_psr $num_dig_psr --temporal_win $temporal_window --video_dir $video_dir --create_video $create_video --create_PSR_plot $create_PSR_plot --FPS $FPS --width $width --height $height --bbox $bbox
+#
+python evaluate_ASDStream.py --run_path $run_path --save_dir_base $save_dir_base --rec_path $rec_path --psr_label_path $psr_label_path  --procedure_info $procedure_info --split $split --conf_threshold $conf_threshold --cum_conf_threshold $cum_conf_threshold --cum_decay $cum_decay --num_dig_psr $num_dig_psr --temporal_win $temporal_window --video_dir $video_dir --create_video $create_video --create_PSR_plot $create_PSR_plot --FPS $FPS --width $width --height $height --bbox $bbox

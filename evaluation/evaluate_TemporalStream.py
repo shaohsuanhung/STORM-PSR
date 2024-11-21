@@ -1,9 +1,5 @@
 """
 Evaluatation function that used to evaluate the Temporal Stream model
-
-author: Shao-Hsuan Hung
-email: shaohsuan.hung1997@gmail.com
-date: 24/09/2024
 """
 # %%
 import numpy as np
@@ -107,37 +103,8 @@ def set_path(args, implementations):
     return save_result_base
 
 if __name__ == '__main__':
-    implementations = ["naive", "confidence", "expected"]
-    args = set_options()
-
-    ########################## Lazy mode ###########################
-    #-- IndustReal
     implementations = ["expected"]
-    args.run_path = r"C:\Users\franc\Desktop\master_thesis\Table1\IndustReal\Temporal_stream_KFS_and_KCAS"
-    args.rec_path = r"C:\Users\franc\Desktop\master_thesis\dataset\industreal"
-    args.psr_label_path = r"C:\Users\franc\Desktop\master_thesis\dataset\industReal_PSR"
-    args.procedure_info = "./utils/procedure_info_IndustReal.json"
-    args.video_dir      = "/shared/nl011006/res_ds_ml_restricted/shaohung/IndustReal/all_rgb_videos"
-    args.create_video = False
-    args.split = "test"
-    args.checkpoint = "weights_50"
-    args.temporal_win = 256
-    args.cum_conf_threshold = 6.0
-
-
-    #-- MECCANO
-    # implementations = ["expected"]
-    # args.run_path = r"C:\Users\franc\Desktop\master_thesis\Table1\MECCANO\Temporal_stream_KFS__and_KCAS"
-    # args.rec_path =  r"C:\Users\franc\Desktop\master_thesis\dataset\MECCANO\RGB_frames"
-    # args.psr_label_path = r"C:\Users\franc\Desktop\master_thesis\dataset\MECCANO_PSR"
-    # args.procedure_info = "./utils/procedure_info_MECCANO.json"
-    # args.video_dir      = "/shared/nl011006/res_ds_ml_restricted/shaohung/IndustReal/all_rgb_videos"
-    # args.create_video = False
-    # args.split = "test"
-    # args.checkpoint = "weights_50"
-    # args.temporal_win = 256
-    # args.cum_conf_threshold = 1.0
-    ################################################################
+    args = set_options()
     save_dir_base  = set_path(args,implementations) 
     ############# Quick setting for known dataset ##################
     args = quick_setting(args)
@@ -239,6 +206,7 @@ if __name__ == '__main__':
             "implementation": impl,  # options: naive, confidence, expected
             "pred_dir": Path(args.run_path) / "test_result" / f"{args.checkpoint}" / f"{args.split}",
             "proc_info": ut.get_procedure_info(args.procedure_info),
+            
             # cumulative threshold for determining an observation 'completed' in conf based
             "cum_conf_threshold": args.cum_conf_threshold,
             "cum_decay": args.cum_decay,  # multiplication factor to decay non-observations in conf based

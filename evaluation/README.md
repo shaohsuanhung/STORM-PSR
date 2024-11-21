@@ -3,10 +3,10 @@
 ## Installation 
 
 ```
-$ git clone [To be add, url of this repo in the public github]
-$ cd KeyStep/PSR_evaluation
-$ conda create -n KeyStep python=3.9 -y
-$ conda activate KeyStep
+$ git clone [redacted, url of this repo in the public github]
+$ cd STORM-PSR/PSR_evaluation
+$ conda create -n storm-psr python=3.9 -y
+$ conda activate storm-psr
 $ pip install -r requirements.txt
 $ pip install git+https://github.com/infoscout/weighted-levenshtein.git#egg=weighted_levenshtein
 ```
@@ -19,7 +19,7 @@ To evaluate PSR task on specific task, the `procedure_info.json` of the dataset 
 
 The following command can be used to evalute models (default hyperparameters can be found in our paper):
 ```
-python evaluate_KeyStep.py --run_path_temporal_stream RUN_PATH_TEMPORAL_STREAM\
+python evaluate_STORM_PSR.py --run_path_temporal_stream RUN_PATH_TEMPORAL_STREAM\
                            --run_path_obj_stream RUN_PATH_OBJ_STREAM\
                            --rec_path REC_PATH --psr_label_path PSR_LABEL_PATH\
                            --video_dir VIDEO_DIR\

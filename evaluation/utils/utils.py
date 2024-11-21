@@ -665,7 +665,7 @@ def determine_performance(gt, pred, proc_info, win_size: int = None, verbose=Fal
                             pred_order[idx-1] = pred_order_cur
                             pred_obs_times[idx] = pred_obs_time_prev
                             pred_obs_times[idx-1] = pred_obs_time_cur
-    ###########################################################
+
     pos, _ = procedure_order_similarity(gt_order, pred_order)
 
     sys_TPs = len(pred_order) - sys_FPs

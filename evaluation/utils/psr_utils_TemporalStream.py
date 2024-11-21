@@ -1,9 +1,5 @@
 """
 Utils function that used by 'evaluate_KeyStep.py' & 'evaluate_TemporalStream.py'
-
-author: Shao-Hsuan Hung
-email: shaohsuan.hung1997@gmail.com
-date: 24/09/2024
 """
 import numpy as np
 import cv2
@@ -1716,9 +1712,6 @@ def plot_PSR_result(rec_name: str, details:dict, impl:str, save_path:str = './',
                 # Aviod overlap
                 # for prev_pos in occupied_pos_pred:
                 if (x-prev_x<250):
-                    # print(label)
-                    # print(f'{label},prev:{prev_pos[0]},current:{x},diff:{x-prev_pos[0]}')
-                    # y_text_pos+=15
                     x_test_pos=occupied_pos_pred[-1][0]-prev_x +60
                     # break
         #-- Determine TP / FP
@@ -1738,7 +1731,6 @@ def plot_PSR_result(rec_name: str, details:dict, impl:str, save_path:str = './',
             arrowprops=dict(arrowstyle = '->', connectionstyle='arc3,rad=0'))
         occupied_pos_pred.append([x+x_test_pos,y+y_text_pos])
     
-    # plt.legend(ncol=2, loc='upper left')
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
     ax.set_xlabel("Frame ID")
@@ -1747,7 +1739,6 @@ def plot_PSR_result(rec_name: str, details:dict, impl:str, save_path:str = './',
     ax.set_yticks([])
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
-    # anchored_text = AnchoredText(f'{rec_name}, POS:{POS:.2f}, F1:{F1:.2f}, Avg. Delay[s]:{avg_delay/10:.2f}',loc='lower right')
     anchored_text = AnchoredText(f'POS:{POS:.2f}, F1:{F1:.2f}, Avg. Delay[s]:{avg_delay/10:.2f}',loc='lower center')
     ax.add_artist(anchored_text)
     plt.tight_layout()

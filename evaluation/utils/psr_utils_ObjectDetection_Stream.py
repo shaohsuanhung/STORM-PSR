@@ -1,9 +1,5 @@
 """
-Utils function that used by 'evaluate_KeyStep.py' & 'evaluate_ODStream.py'
-
-author: Shao-Hsuan Hung
-email: shaohsuan.hung1997@gmail.com
-date: 24/09/2024
+Utils function that used by 'evaluate_STORM_PSR.py' & 'evaluate_ASDStream.py'
 """
 
 import numpy as np
@@ -574,7 +570,7 @@ def procedure_order_similarity(gt, pred):
     return score, distance
 
 def get_f1_score(FN:int, FP:int, TP:int):
-    # https://en.wikipedia.org/wiki/F-score
+    """ https://en.wikipedia.org/wiki/F-score """
     P = TP + FN
     PP = TP + FP
     if PP != 0:
@@ -1014,7 +1010,6 @@ def determine_performance(gt, pred, proc_info, win_size: int = None, verbose=Fal
                             pred_order[idx-1] = pred_order_cur
                             pred_obs_times[idx] = pred_obs_time_prev
                             pred_obs_times[idx-1] = pred_obs_time_cur
-    ##################################
 
     pos, _ = procedure_order_similarity(gt_order, pred_order)
     sys_TPs = len(pred_order) - sys_FPs
@@ -1112,9 +1107,6 @@ def plot_PSR_result(rec_name: str, details:dict, impl:str, save_path:str = './',
                 x_test_pos= occupied_pos_gt[-1][0]-prev_x        
             else:
                 #-- Aviod overlap
-                # for prev_pos in occupied_pos_gt:
-                #     if (x-prev_pos[0]<50):
-                #         y_text_pos=occupied_pos_gt[-1][0]-prev_x - 15
                 if x-prev_x < 100:
                     x_test_pos = occupied_pos_gt[-1][0] - prev_x +40
 
@@ -1138,6 +1130,7 @@ def plot_PSR_result(rec_name: str, details:dict, impl:str, save_path:str = './',
             # Stack if happen at the same moment
             prev_x =  list(pred_dic.values())[idx-1]
             prev_y =  occupied_pos_pred[-1][1]
+
             # print(f"Prev x,y = ({prev_x},{prev_y}), current:{x}")
             if (x == prev_x):
                 y_text_pos=prev_y +20
@@ -1146,6 +1139,7 @@ def plot_PSR_result(rec_name: str, details:dict, impl:str, save_path:str = './',
                 # Aviod overlap
                 if (x-prev_x<250):
                     x_test_pos=occupied_pos_pred[-1][0]-prev_x +40
+
         #-- Determine TP / FP
         # Find ele in gt that before the pred time stamp
         color = "orange" # FPs
@@ -1172,7 +1166,6 @@ def plot_PSR_result(rec_name: str, details:dict, impl:str, save_path:str = './',
     ax.set_yticks([])
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
-    # anchored_text = AnchoredText(f'{rec_name}, POS:{POS:.2f}, F1:{F1:.2f}, Avg. Delay[s]:{avg_delay/10:.2f}',loc='lower right')
     anchored_text = AnchoredText(f'POS:{POS:.2f}, F1:{F1:.2f}, Avg. Delay[s]:{avg_delay/10:.2f}',loc='lower center')
     ax.add_artist(anchored_text)
     plt.tight_layout()
