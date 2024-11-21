@@ -12,7 +12,6 @@ spatial_args:
   channels: 3
   second_head_input: 128
   model: 'vit_small_patch16_224.augreg_in21k_ft_in1k'
-  weights_dir: '/shared/nl011006/res_ds_ml_restricted/shaohung/pre-trained_model/vit_no_inter_KFA_trained.pth'
-
+  weights_dir: 'YOUR weights dir'
 temporal_args:
   frames: 32

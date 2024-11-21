@@ -13,9 +13,9 @@ $ pip install git+https://github.com/infoscout/weighted-levenshtein.git#egg=weig
 > The weighted-levenshtein gives an error when installing requirements.txt file, therefore it is installed manually from their [GitHub repo](https://github.com/infoscout/weighted-levenshtein).
 
 ## Usage
-The KeyStep model consist of two stream model, object detection stream and temporal stream. For different models, there are different script to evaluate the model due to different output of the model. The predictions are provided at [prediction folder](./predictions/). Therefore, one can run the PSR code on CPU, since there are no new predictions from computationally expensive operations.
+The STORM-PSR model consist of two stream model, object detection stream and temporal stream. For different models, there are different script to evaluate the model due to different output of the model. The predictions are provided at [prediction folder](./predictions/). Therefore, one can run the PSR code on CPU, since there are no new predictions from computationally expensive operations.
 
-To evaluate PSR task on specific task, the `procedure_info.json` of the dataset is need (see [here](./utils/procedure_info_IndustReal.json)). To evaluate the KeyStep stream, you need predictions from both object detection stream and temporal stream. We provided the predictions in the paper. 
+To evaluate PSR task on specific task, the `procedure_info.json` of the dataset is need (see [here](./utils/procedure_info_IndustReal.json)). To evaluate the STORM-PSR stream, you need predictions from both object detection stream and temporal stream. We provided the predictions in the paper. 
 
 The following command can be used to evalute models (default hyperparameters can be found in our paper):
 ```

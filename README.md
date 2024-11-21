@@ -8,7 +8,7 @@ STORM-PSR is evaluated on the MECCANO and IndustReal datasets, reducing the aver
 ## Getting Started
 1. Clone the repository
 ```terminal
-git clone https://github.com/shaohsuanhung/STORM-PSR.git
+git clone [Redacted]
 cd STORM-PSR
 ```
 2. Setup and activate your conda environment, and install dependencies
@@ -20,8 +20,6 @@ pip install -r STORM-PSR/requirements.txt
 3. Dataset preparation
    * IndustReal:  Please refer to  [IndustReal github page](https://github.com/TimSchoonbeek/IndustReal) to download the datasets.
    * MECCANO: Please refer to [MECCANO github page](https://github.com/fpv-iplab/MECCANO) to download the datasets.
-     <font color="red">
-     !!! We should ADD link to download the MECCANO ASD & PSR annotation !!!</font>
 
 
 ## Object detection stream model
@@ -30,27 +28,35 @@ Please refer to the IndustReal assembly state detection [tutorial](https://githu
 ## Temporal Stream model
 ### To train a temporal-stream model
 ```bash
-cd STORM-PSR/temporal_stream
-sh scripts/train.sh
+cd STORM-PSR/temporal_stream/jobscript
+sh train_test_eval_ft_pipeline.sh
 ```
 ### To test a temporal-stream model
 ```bash
-cd STORM-PSR/temporal_stream
-sh scripts/test.sh
+cd STORM-PSR/temporal_stream/jobscript
+sh test.sh
+```
+
+## To extract spatial embeddings
+```bash
+cd STORM-PSR/temporal_stream/pretrained_models
+sh extract_embeddings.sh
 ```
 
 ## To evaluate a model
 ```bash
 cd STORM-PSR/PSR_evaluation
 # To evaluate the STORM-PSR model
-sh evaluate_STORM.sh
+sh evaluate_STORM_PSR.sh
 
- # To evaluate the Object Detection Stream
-sh evaluate_ODStream.sh
+ # To evaluate the assembly state detection stream
+sh evaluate_ASDStream.sh
 
 # To evaluate the Temporal Stream model
 sh evaluate_TemporalStream.sh  
 ```
+
+
 
 ### To visualize spatial embedding using UMAP / t-SNE
 Please refer to [STORM-PSR/temporal_stream/visualize_embedding/visualized_embedding.ipynb](STORM-PSR/temporal_stream/visualize_embedding/visualized_embedding.ipynb) to visualize the spatial embedding using UMAP / t-SNE.

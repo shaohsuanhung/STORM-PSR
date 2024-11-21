@@ -220,8 +220,6 @@ def plot_trainlog_result(epoch: int, log_dir: str, save_path: str):
     train_microF1_list = list()
     val_loss_list = list()
     val_microF1_list = list()
-    # log_dir = ("/shared/nl011006/res_ds_ml_restricted/shaohung/train_log/runs")
-    # run_name = '0609-frame-64-g'
     for idx in range(1, epoch+1):
         with open(log_dir / f"train_progress_epoch{idx}.txt") as f:
             for line in f:

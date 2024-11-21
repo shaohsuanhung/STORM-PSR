@@ -1,5 +1,5 @@
 """
-Utils function that used by 'evaluate_KeyStep.py' & 'evaluate_TemporalStream.py'
+Utils function that used by 'evaluate_STORM_PSR.py' & 'evaluate_TemporalStream.py'
 """
 import numpy as np
 import cv2

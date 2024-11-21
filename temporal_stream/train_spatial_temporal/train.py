@@ -1,4 +1,3 @@
-
 from sklearn.metrics import classification_report
 import io
 import pandas as pd
@@ -59,8 +58,9 @@ def set_options():
                         help="Directory of the psr label")
     parser.add_argument("--log_path",type=str,default=None,
                         help="save path to the data log.")
-    parser.add_argument("--ckpt_dir",type=str,default="/hpc/scratch/shaohung/checkpoints",
-                        help="Dir. to save the checkpoint model to at each epoch.")    
+    parser.add_argument("--ckpt_dir",type=str,default="check_point_path",help="Dir. to save the checkpoint model to at each epoch.")    
+
+    # -- training setting
     parser.add_argument("--run_name", type=str, default='default',
                         help="Name of the run to be tested or evaluated")
     parser.add_argument("--resume", type=int, default=0,

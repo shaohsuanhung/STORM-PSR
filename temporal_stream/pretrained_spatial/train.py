@@ -21,7 +21,7 @@ from test import test_metric
 #
 from temporal_aware_CL.temporal_aware_datasets import TemporalAwareContrastiveDataset, get_recording_list, RealContrastiveDatasetWithInters_PSR
 
-############################## Dataset specific variable Setting #################################
+#-- Dataset variable Setting
 MECCANO_categories = [
      'background',        
      '10001000100000000', # state 1
@@ -62,7 +62,6 @@ IndustReal_categories = ['background',
               '11101111110',  # state 21
               '11101111111',  # state 22
               'error_state']
-###########################################################################################
 def set_options():
     parser = argparse.ArgumentParser(description='Passing arguments.')
     # Run parameters
