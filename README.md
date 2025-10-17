@@ -1,4 +1,6 @@
 # Learning to Recognize Correctly Completed Procedure Steps in Egocentric Assembly Videos through Spatio-Temporal Modeling
+<iframe src="https://www.youtube.com/embed/eahxwlh17SM?rel=0&amp;showinfo=0"frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
 ![](fig/teaser.PNG)
 We propose Spatio-Temporal Occlusion-Resilient Modeling for Procedure Step Recognition (STORM-PSR), a dual-stream framework for Procedure step recognition (PSR) that leverages both spatial and temporal features. PSR task aims to identify all correctly completed steps and their sequential order in videos of procedural tasks. The existing state-of-the-art models rely solely on detecting assembly object states in individual video frames.
 
