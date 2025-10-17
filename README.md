@@ -1,7 +1,5 @@
 # Learning to Recognize Correctly Completed Procedure Steps in Egocentric Assembly Videos through Spatio-Temporal Modeling
-
-# Demo video
-[![Youtube Video]](https://www.youtube.com/watch?v=eahxwlh17SM)
+> Check out our [project page](https://timschoonbeek.github.io/stormpsr.html) for more information!
 
 ![](fig/teaser.PNG)
 We propose Spatio-Temporal Occlusion-Resilient Modeling for Procedure Step Recognition (STORM-PSR), a dual-stream framework for Procedure step recognition (PSR) that leverages both spatial and temporal features. PSR task aims to identify all correctly completed steps and their sequential order in videos of procedural tasks. The existing state-of-the-art models rely solely on detecting assembly object states in individual video frames.
@@ -24,6 +22,8 @@ pip install -r STORM-PSR/requirements.txt
 3. Dataset preparation
    * IndustReal:  Please refer to  [IndustReal github page](https://github.com/TimSchoonbeek/IndustReal) to download the datasets.
    * MECCANO: Please refer to [MECCANO github page](https://github.com/fpv-iplab/MECCANO) to download the datasets.
+   * MECCANO-PSR annotation: Please refer to [here](https://github.com/TimSchoonbeek/PSR-annotations) to download the annotations.
+
 
 
 ## Object detection stream model
