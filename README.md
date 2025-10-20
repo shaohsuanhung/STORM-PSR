@@ -70,12 +70,14 @@ Please refer to [STORM-PSR/temporal_stream/visualize_embedding/visualize_embeddi
 If you use these annotations or tools, please cite the corresponding article:
 
 ```bibtex
-@misc{schoonbeek2025learning,
-  title={Learning to Recognize Correctly Completed Procedure Steps in Egocentric Assembly Videos through Spatio-Temporal Modeling},
-  author={Tim J. Schoonbeek and Shao-Hsuan Hung and Dan Lehman and Hans Onvlee and Jacek Kustra and Peter H. N. de With and Fons van der Sommen},
-  year={2025},
-  eprint={2510.12385},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2510.12385},
+@article{schoonbeek2025stormpsr,
+  title        = {Learning to recognize correctly completed procedure steps in egocentric assembly videos through spatio-temporal modeling},
+  journal      = {Computer Vision and Image Understanding},
+  pages        = {104528},
+  year         = {2025},
+  issn         = {1077-3142},
+  doi          = {https://doi.org/10.1016/j.cviu.2025.104528},
+  url          = {https://www.sciencedirect.com/science/article/pii/S1077314225002516},
+  author       = {Tim J. Schoonbeek and Shao-Hsuan Hung and Dan Lehman and Hans Onvlee and Jacek Kustra and Peter H.N. {de With} and Fons {van der Sommen}},
+  keywords     = {Computer vision in industrial contexts, Egocentric vision in assistive contexts, Video understanding, Procedure step recognition, Representation learning}
 }
