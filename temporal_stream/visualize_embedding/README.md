@@ -10,7 +10,8 @@ $ pip install -r storm-psr/temporal_stream/visualize_embedding/requirements.txt
 ```
 
 ## Usage
-The `visualized_utils.py` can be used to visualized the embedding by dimension reduction. We implement visualization in the t-SNE and UMAP. The `visualized_embedding.ipynb` help user to visualize the embedding in a more interactive way. 
+The `visualized_embedding.ipynb` help user to visualize the embedding in a interactive way. 
+The `visualized_utils.py` can be used to visualized the embedding by dimension reduction. We implement visualization on top of the [sklearn t-SNE](https://scikit-learn.org/0.16/modules/generated/sklearn.manifold.TSNE.html) and [UMAP](https://umap-learn.readthedocs.io/en/latest/) package for assembly state recongition application. 
 
 ## How to structure folders/embedding files for visualization?
 We build 3 different load embedding functions since there are different ways that people store embeddings.
