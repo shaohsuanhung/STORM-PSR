@@ -85,8 +85,11 @@ sns.set_theme(style='ticks', font_scale=0.75, rc={
     'ytick.color': _new_black
 
 })
-#-- Global variables targets, colors and markers
+#------- Global variables targets, colors and markers --------#
+#------- Please change the setting below if you have different number of states ----#
 #   for functions: (1) plot_2D, (2)analyze_variation, (3) plot_all_states
+ERROR_STATE = '23' # Define the error state label, we can also re-define it.
+NUM_STATE = 24 # Define the number of states including error state
 targets = [str(idx) for idx in range(0, 24)]
 colors = ['#db5f57', '#db8057', '#dba157', '#dbc257', '#d3db57', '#b2db57', \
           '#91db57', '#70db57', '#57db5f', '#57db80', '#57dba1', '#57dbc2', \
@@ -278,7 +281,7 @@ def load_embedding_from_PlainCSV(data_file: str, label_file: str, statics: bool 
     if error_embed_flag:
         # If the the csv only contain error embeddings, then there is no labels (since all of them are labeled state 23)
         for _ in range(len(embeddings)):
-            state_list.append(str(23))
+            state_list.append(ERROR_STATE)
     else:
         for _, row in label_data.iterrows():
             state_list.append(str(row.values[0]))
@@ -471,7 +474,7 @@ def get_tsne_df_and_score(tsne_setting, df: pd.DataFrame, dimension: int, superv
 
     tsne_df = pd.DataFrame(data=embedding, columns=cols)
     tsne_df = pd.concat([df['state'], df['filename'], df['frameID'], tsne_df], axis=1)
-    sscore = evaluate_clusters(tsne_df[(tsne_df['state']!='23') & (tsne_df['state']!='0')], cluster_metrics, dim=2,label='state',)
+    sscore = evaluate_clusters(tsne_df[(tsne_df['state']!=ERROR_STATE) & (tsne_df['state']!='0')], cluster_metrics, dim=2,label='state',)
     return Trained_tsne, tsne_df, sscore
 
 def get_UMAP_df_and_score(umap_setting, df: pd.DataFrame, dimension: int, supervised: bool = False, normalized : bool = True, anonymous_mode: bool  = False, cluster_metrics: str = 'cdbw'):
@@ -490,9 +493,10 @@ def get_UMAP_df_and_score(umap_setting, df: pd.DataFrame, dimension: int, superv
                  Column name: {filename, frameID, state, pc1, pc2, ....{depends on number of dimension you have gave}}
         sscore : float, CDbw score
     '''
+
+    #-- Use the 
     if supervised:
         Trained_umap = umap_setting.fit(df['embedding'].tolist(), df['state'])
-
     else:
         Trained_umap = umap_setting.fit(df['embedding'].tolist())
 
@@ -515,7 +519,7 @@ def get_UMAP_df_and_score(umap_setting, df: pd.DataFrame, dimension: int, superv
 
     # Here we only calculate the clustering of "pre-defined assembly state". Shouldn't included error state and intermediate state. 
     try:
-        sscore = evaluate_clusters(final_df[(final_df['state']!='23') & (final_df['state']!='0')], dim=2,label='state',metrics = cluster_metrics)
+        sscore = evaluate_clusters(final_df[(final_df['state']!=ERROR_STATE) & (final_df['state']!='0')], dim=2,label='state',metrics = cluster_metrics)
     # sscore = evaluate_clusters(final_df[(final_df['state']!='23')],dim=2,label='state')
     except:
         sscore = -1
@@ -589,7 +593,7 @@ def fit_UMAP_transform(UMAP_model, df: pd.DataFrame, normalized :bool = True, an
     umap_df = pd.DataFrame(data=embedding, columns=['PC1','PC2'])
     if not anonymous_mode:
         final_df = pd.concat([df['state'], df['filename'], df['frameID'], umap_df], axis=1)
-        sscore = evaluate_clusters(final_df[(final_df['state']!='23') & (final_df['state']!='0')],metrics = 'cdbw', dim=2,label='state',)
+        sscore = evaluate_clusters(final_df[(final_df['state']!=ERROR_STATE) & (final_df['state']!='0')],metrics = 'cdbw', dim=2,label='state',)
 
     else:
         final_df = pd.concat([df['state'], umap_df], axis=1)
@@ -727,7 +731,7 @@ def plot_2D(df: pd.DataFrame, title: str = '', save: bool = False, path: str = '
     ax.set_ylabel('UMAP feature 2', fontsize=15)
     ax.set_title('{}'.format(title), fontsize=20)
 
-    targets = [str(idx) for idx in range(0, 23)] # Change this if you want to visualize state 0
+    targets = [str(idx) for idx in range(0, NUM_STATE-1)] # Change this if you want to visualize state 0
     for target, color, marker in zip(targets, colors, markers):
         indicesToKeep = df['state'] == target
         ax.scatter(df.loc[indicesToKeep, 'PC1']
