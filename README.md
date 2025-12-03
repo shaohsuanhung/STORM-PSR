@@ -10,7 +10,7 @@ STORM-PSR is evaluated on the MECCANO and IndustReal datasets, reducing the aver
 ## Getting Started
 1. Clone the repository
 ```terminal
-git clone [Redacted]
+git clone https://github.com/shaohsuanhung/STORM-PSR
 cd STORM-PSR
 ```
 2. Setup and activate your conda environment, and install dependencies
@@ -80,4 +80,5 @@ If you use these annotations or tools, please cite the corresponding article:
   url          = {https://www.sciencedirect.com/science/article/pii/S1077314225002516},
   author       = {Tim J. Schoonbeek and Shao-Hsuan Hung and Dan Lehman and Hans Onvlee and Jacek Kustra and Peter H.N. {de With} and Fons {van der Sommen}},
   keywords     = {Computer vision in industrial contexts, Egocentric vision in assistive contexts, Video understanding, Procedure step recognition, Representation learning}
+
 }
