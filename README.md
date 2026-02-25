@@ -6,7 +6,6 @@ We propose Spatio-Temporal Occlusion-Resilient Modeling for Procedure Step Recog
 
 STORM-PSR is evaluated on the MECCANO and IndustReal datasets, reducing the average delay between actual and predicted assembly step completions by 11.2\% and 26.1\%, respectively, compared to the [SOTA methods](https://openaccess.thecvf.com/content/WACV2024/papers/Schoonbeek_IndustReal_A_Dataset_for_Procedure_Step_Recognition_Handling_Execution_Errors_WACV_2024_paper.pdf).
 
-
 ## Getting Started
 1. Clone the repository
 ```terminal
@@ -20,7 +19,7 @@ conda activate storm-psr
 pip install -r STORM-PSR/requirements.txt
 ```
 3. Dataset preparation
-   * IndustReal:  Please refer to  [IndustReal github page](https://github.com/TimSchoonbeek/IndustReal) to download the datasets.
+   * IndustReal:  Please refer to  [IndustReal github page](https://github.com/TimSchoonbeek/IndustReal) and [extension IndustReal dataset](https://data.4tu.nl/datasets/611adbc7-7935-43a6-8c3f-b2260a508e73) to download the datasets.
    * MECCANO: Please refer to [MECCANO github page](https://github.com/fpv-iplab/MECCANO) to download the datasets.
    * MECCANO-PSR annotation: Please refer to [here](https://github.com/TimSchoonbeek/PSR-annotations) to download the annotations.
 
@@ -82,3 +81,4 @@ If you use these annotations or tools, please cite the corresponding article:
   keywords     = {Computer vision in industrial contexts, Egocentric vision in assistive contexts, Video understanding, Procedure step recognition, Representation learning}
 
 }
+
